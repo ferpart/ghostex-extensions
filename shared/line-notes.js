@@ -132,7 +132,7 @@ export function attachLineNotes(editor, { onAdd, onRemove }) {
       for (const id of noteZoneIds) accessor.removeZone(id);
       noteZoneIds = notes.map((note) => {
         const card = element('div', 'gx-note-card gx-note-saved');
-            const header = element('div', 'gx-note-header');
+        const header = element('div', 'gx-note-header');
         const remove = element('button', 'gx-button gx-button-ghost gx-note-remove', '×');
         remove.title = 'Remove note';
         remove.addEventListener('click', () => onRemove(note.id));
