@@ -150,6 +150,7 @@ function App() {
   const [pendingOpen, setPendingOpen] = useState(undefined);
   const [menuOpen, setMenuOpen] = useState(false);
   const editorRef = useRef(null);
+  const modeByPath = useRef(new Map()).current;
   const { notes, add, remove } = useNotes(cwd);
 
   const refresh = useCallback(() => {
@@ -244,6 +245,9 @@ function App() {
               path={openFile.path}
               line={openFile.line}
               revealKey={openFile.revealKey}
+              requestedMode={openFile.mode}
+              hasChanges={listing.gitStatus.files.has(openFile.path)}
+              modeByPath={modeByPath}
               notes={notes}
               addNote={add}
               removeNote={remove}
@@ -255,7 +259,7 @@ function App() {
           </main>
         )}
       </div>
-      <NotesPanel context={context} projectPath={cwd} notes={notes} onOpenNote={(note) => requestOpen({ path: note.filePath, line: note.startLine })} />
+      <NotesPanel context={context} projectPath={cwd} notes={notes} onOpenNote={(note) => requestOpen({ path: note.filePath, line: note.startLine, mode: note.source === 'diff' ? 'changes' : undefined })} />
     </div>
   );
 }
