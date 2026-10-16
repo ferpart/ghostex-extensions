@@ -25,6 +25,7 @@ function isolateFromEditor(node) {
 // Monaco sets inline display on a zone's domNode, so the card sits inside a plain wrapper.
 function zoneNodeFor(card) {
   const zone = element('div', 'gx-note-zone');
+  isolateFromEditor(zone);
   zone.append(card);
   return zone;
 }
@@ -88,7 +89,6 @@ export function attachLineNotes(editor, { onAdd, onRemove }) {
     draftRange = { startLine, endLine };
     paintRange(draftRange);
     const card = element('div', 'gx-note-card gx-note-draft');
-    isolateFromEditor(card);
     const textarea = element('textarea', 'gx-note-input');
     textarea.placeholder = 'Add note for the AI';
     const actions = element('div', 'gx-note-actions');
@@ -132,7 +132,6 @@ export function attachLineNotes(editor, { onAdd, onRemove }) {
       for (const id of noteZoneIds) accessor.removeZone(id);
       noteZoneIds = notes.map((note) => {
         const card = element('div', 'gx-note-card gx-note-saved');
-        isolateFromEditor(card);
         const header = element('div', 'gx-note-header');
         const remove = element('button', 'gx-button gx-button-ghost gx-note-remove', '×');
         remove.title = 'Remove note';
