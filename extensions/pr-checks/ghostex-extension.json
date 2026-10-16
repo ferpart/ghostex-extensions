@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/ghostex-extension.schema.json",
+  "name": "pr-checks",
+  "title": "PR Checks",
+  "description": "Manage the branch pull request: checks, merge, and comments, and send failures or feedback to the active agent.",
+  "version": "0.1.0",
+  "author": "ferpart",
+  "icon": "icon.svg",
+  "categories": [
+    "Developer Tools",
+    "Productivity"
+  ],
+  "permissions": [
+    "exec",
+    "cli"
+  ],
+  "placements": [
+    "popup",
+    "view",
+    "modal"
+  ],
+  "defaultPlacement": "popup",
+  "server": {
+    "static": "dist/"
+  },
+  "popup": {
+    "width": 420,
+    "height": 640
+  },
+  "modal": {
+    "width": 1200,
+    "height": 800
+  }
+}
