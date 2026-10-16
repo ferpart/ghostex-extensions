@@ -55,11 +55,13 @@
 .preview mark { background: rgb(210 153 34 / 0.35); color: inherit; border-radius: 2px; }
 
 .file-view { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-.file-header { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-bottom: 1px solid var(--gx-border); }
+.file-header { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-bottom: 1px solid var(--gx-border); min-width: 0; overflow: hidden; }
+.file-header > :not(.file-path) { flex: none; }
 .mode-switch button { flex: none; padding: 2px 8px; }
 .mode-switch button:disabled { opacity: 0.45; cursor: default; }
 .banner { padding: 4px 12px; border-bottom: 1px solid var(--gx-border); background: var(--gx-bg-raised); }
 .editor-host[hidden] { display: none; }
+@media (max-width: 380px) { .save-state { display: none; } }
 .file-path { flex: 1; min-width: 0; font-family: var(--gx-mono); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left; }
 .dirty-mark { color: var(--gx-accent); font-size: 12px; }
 .editor-host { flex: 1; min-height: 0; }
