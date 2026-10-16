@@ -1,0 +1,13 @@
+{
+  "name": "ghostex-extensions",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "sync": "node tooling/sync-shared.mjs",
+    "validate": "node tooling/validate.mjs",
+    "setup": "for d in extensions/*/; do (cd \"$d\" && npm ci --ignore-scripts) || exit 1; done",
+    "build": "npm run sync && for d in extensions/*/; do (cd \"$d\" && npm run build) || exit 1; done",
+    "sideload": "npm run build && for d in extensions/*/; do (cd \"$d\" && npm run sideload) || exit 1; done"
+  }
+}
