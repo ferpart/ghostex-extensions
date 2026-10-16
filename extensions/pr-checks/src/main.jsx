@@ -167,9 +167,9 @@ function App() {
 
   const refresh = useCallback(() => {
     if (!cwd) return Promise.resolve();
-    if (inFlight.current) return inFlight.current;
+    if (inFlight.current?.cwd === cwd) return inFlight.current.promise;
     setRefreshing(true);
-    inFlight.current = (async () => {
+    const promise = (async () => {
       try {
         const nextPr = await github.loadPullRequest(cwd);
         const nextDetails = nextPr ? await github.loadDetails(cwd, nextPr) : null;
@@ -180,11 +180,14 @@ function App() {
       } catch (error) {
         if (cwdRef.current === cwd) setLoadError(error.message);
       } finally {
-        inFlight.current = null;
-        setRefreshing(false);
+        if (inFlight.current?.promise === promise) {
+          inFlight.current = null;
+          setRefreshing(false);
+        }
       }
     })();
-    return inFlight.current;
+    inFlight.current = { cwd, promise };
+    return promise;
   }, [cwd]);
 
   useEffect(() => {

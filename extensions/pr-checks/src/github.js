@@ -83,6 +83,7 @@ export async function loadPullRequest(cwd) {
   if (result.exitCode === 0) return JSON.parse(result.stdout);
   const details = (result.stderr || result.stdout || '').trim();
   if (/no pull requests? found/i.test(details)) return null;
+  if (/not a git repository/i.test(details)) throw new Error('This folder is not a git repository.');
   throw new Error(`gh pr view failed (exit ${result.exitCode}): ${details || 'no output'}`);
 }
 
