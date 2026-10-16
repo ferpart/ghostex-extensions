@@ -1,6 +1,7 @@
 import { render } from 'preact';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { execPosix, projectPathOf, run, shellQuote, toast, useGhostexContext, waitForBridge } from './shared/bridge.js';
+import { enableCodicons } from './shared/codicons.js';
 import { useNotes } from './shared/notes.js';
 import { NotesPanel } from './shared/notes-panel.jsx';
 import { FileView } from './file-view.jsx';
@@ -259,4 +260,5 @@ function App() {
   );
 }
 
+enableCodicons();
 render(<App />, document.getElementById('root'));
