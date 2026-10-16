@@ -58,6 +58,7 @@ button { font: inherit; color: inherit; }
 .gx-note-header { display: flex; align-items: center; justify-content: space-between; }
 .gx-note-body { white-space: pre-wrap; line-height: 18px; font-size: 13px; }
 .gx-note-remove { padding: 0 6px; }
+.gx-note-range { background: rgb(59 130 246 / 0.22); }
 .gx-note-line { background: rgb(59 130 246 / 0.12); }
 .gx-note-glyph::before, .gx-note-add::before { content: '+'; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 4px; font: 600 13px var(--gx-font); }
 .gx-note-glyph::before { content: '●'; color: var(--gx-accent); font-size: 9px; }
