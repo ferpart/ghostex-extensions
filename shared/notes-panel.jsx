@@ -1,19 +1,18 @@
 import { useState } from 'preact/hooks';
 import { agentLabel, deliverToAgent } from './agent.js';
 import { toast } from './bridge.js';
-import { clearNotes, formatNotes, markNotesSent, removeNote } from './notes.js';
+import { clearNotes, formatNotes, removeNote, removeNotes } from './notes.js';
 
 export function NotesPanel({ context, projectPath, notes, onOpenNote }) {
   const [busy, setBusy] = useState(false);
   if (notes.length === 0) return null;
-  const unsent = notes.filter((note) => !note.sentAt);
-  const toSend = unsent.length > 0 ? unsent : notes;
+  const toSend = notes;
 
   const send = async (queue) => {
     setBusy(true);
     try {
       const session = await deliverToAgent(context, formatNotes(toSend), { queue });
-      await markNotesSent(projectPath, toSend.map((note) => note.id));
+      await removeNotes(projectPath, toSend.map((note) => note.id));
       await toast(`${queue ? 'Queued' : 'Sent'} ${toSend.length} note(s) to ${session.title}`);
     } catch (error) {
       await toast(error.message);
@@ -31,7 +30,7 @@ export function NotesPanel({ context, projectPath, notes, onOpenNote }) {
       </header>
       <ul class="gx-notes-list">
         {notes.map((note) => (
-          <li key={note.id} class={note.sentAt ? 'gx-note-row sent' : 'gx-note-row'}>
+          <li key={note.id} class="gx-note-row">
             <button class="gx-link" onClick={() => onOpenNote?.(note)}>
               {note.filePath.split('/').pop()}:{note.startLine === note.endLine ? note.endLine : `${note.startLine}-${note.endLine}`}
             </button>

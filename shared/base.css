@@ -45,7 +45,6 @@ button { font: inherit; color: inherit; }
 .gx-notes { border-top: 1px solid var(--gx-border); padding-bottom: 8px; }
 .gx-notes-list { list-style: none; margin: 0; padding: 0 10px; max-height: 30vh; overflow: auto; }
 .gx-note-row { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
-.gx-note-row.sent { opacity: 0.55; }
 .gx-note-preview { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gx-notes-actions { display: flex; gap: 6px; padding: 6px 10px 2px; }
 .gx-notes > .gx-muted { padding: 0 10px; }

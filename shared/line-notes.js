@@ -138,7 +138,7 @@ export function attachLineNotes(editor, { onAdd, onRemove }) {
         remove.title = 'Remove note';
         remove.addEventListener('click', () => onRemove(note.id));
         header.append(
-          element('span', 'gx-note-label', `${rangeLabel(note.startLine, note.endLine)}${note.sentAt ? ' · SENT' : ''}`),
+          element('span', 'gx-note-label', rangeLabel(note.startLine, note.endLine)),
           remove
         );
         card.append(header, element('div', 'gx-note-body', note.body));
