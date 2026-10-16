@@ -241,6 +241,7 @@ function App() {
               </div>
             )}
             <FileView
+              context={context}
               cwd={cwd}
               path={openFile.path}
               line={openFile.line}

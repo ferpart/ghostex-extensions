@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { run, shellQuote, writeFile } from './shared/bridge.js';
 import { attachLineNotes } from './shared/line-notes.js';
 import { createDiffEditor, createFileEditor, disposeEditor, monaco } from './shared/monaco-setup.js';
+import { SendNotesButton } from './shared/notes-panel.jsx';
 import { Icon } from './icons.jsx';
 
 const MAX_EDITOR_BYTES = 1_000_000;
@@ -36,7 +37,7 @@ function createChangesEditor(host, path, fileModel) {
 }
 
 export function FileView({
-  cwd, path, line, revealKey, requestedMode, hasChanges, modeByPath,
+  context, cwd, path, line, revealKey, requestedMode, hasChanges, modeByPath,
   notes, addNote, removeNote, onClose, onDirtyChange, onSaved, editorRef,
 }) {
   const editHost = useRef(null);
@@ -192,6 +193,7 @@ export function FileView({
             </button>
           </div>
         )}
+        {fileNotes.length > 0 && <SendNotesButton context={context} projectPath={cwd} notes={fileNotes} />}
         <button class="gx-button" disabled={!dirty} title="Save (Cmd+S)" onClick={() => saveRef.current?.()}>Save</button>
       </header>
       {saveState.status === 'error' && <div class="gx-error">Save failed: {saveState.message}</div>}
