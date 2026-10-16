@@ -100,3 +100,15 @@ export function sumLines(entries) {
     { added: 0, removed: 0 }
   );
 }
+
+export const BRANCH_LIST_FORMAT = '%(refname)%09%(refname:short)%09%(symref)';
+
+export function parseBranchList(stdout) {
+  const branches = [];
+  for (const line of stdout.split('\n')) {
+    const [fullName, name, symref] = line.split('\t');
+    if (!name || symref || fullName.endsWith('/HEAD')) continue;
+    branches.push({ name, remote: fullName.startsWith('refs/remotes/') });
+  }
+  return branches;
+}

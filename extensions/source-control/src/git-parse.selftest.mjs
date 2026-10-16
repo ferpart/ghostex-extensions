@@ -3,7 +3,7 @@ import { execSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { changeListArgs, parseChangeList, parseNumstat, parseStatus, sumLines } from './git-parse.js';
+import { BRANCH_LIST_FORMAT, changeListArgs, parseBranchList, parseChangeList, parseNumstat, parseStatus, sumLines } from './git-parse.js';
 
 const status = parseStatus(
   [
@@ -40,6 +40,24 @@ assert.deepEqual(numstat.get('a.js'), { added: 3, removed: 1, binary: false });
 assert.deepEqual(numstat.get('img.png'), { added: 0, removed: 0, binary: true });
 assert.deepEqual(numstat.get('new.js'), { added: 2, removed: 0, binary: false });
 
+assert.deepEqual(
+  parseBranchList(
+    [
+      'refs/heads/main\tmain\t',
+      'refs/heads/feature/x\tfeature/x\t',
+      'refs/remotes/origin/HEAD\torigin\trefs/remotes/origin/main',
+      'refs/remotes/origin/main\torigin/main\t',
+      'refs/remotes/upstream/HEAD\tupstream/HEAD\t',
+      '',
+    ].join('\n')
+  ),
+  [
+    { name: 'main', remote: false },
+    { name: 'feature/x', remote: false },
+    { name: 'origin/main', remote: true },
+  ]
+);
+
 const repo = mkdtempSync(join(tmpdir(), 'gx-git-parse-'));
 try {
   const sh = (command) => execSync(command, { cwd: repo, encoding: 'utf8', env: { ...process.env, GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@t', GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@t' } });
@@ -64,6 +82,16 @@ try {
   ]);
   assert.deepEqual(sumLines(changes), { added: 3, removed: 1 });
   assert.equal(parseChangeList(sh(changeListArgs(null, 'HEAD~1'))).length, 2);
+
+  git('update-ref refs/remotes/origin/main HEAD~1');
+  git('symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/main');
+  git('branch topic HEAD~1');
+  const branches = parseBranchList(git(`for-each-ref '--format=${BRANCH_LIST_FORMAT}' refs/heads refs/remotes`));
+  assert.deepEqual(branches, [
+    { name: 'main', remote: false },
+    { name: 'topic', remote: false },
+    { name: 'origin/main', remote: true },
+  ]);
 
   writeFileSync(join(repo, 'moved.txt'), 'changed\n');
   writeFileSync(join(repo, 'fresh.txt'), 'new\n');
