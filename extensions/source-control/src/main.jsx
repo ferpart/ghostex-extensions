@@ -440,12 +440,12 @@ function App() {
         </div>
       </div>
       {diffTarget ? (
-        <DiffView cwd={cwd} target={diffTarget} version={version} notes={notes} addNote={add} removeNote={remove} onClose={() => setDiffTarget(null)} />
+        <DiffView context={context} projectPath={projectPath} cwd={cwd} target={diffTarget} version={version} notes={notes} addNote={add} removeNote={remove} onClose={() => setDiffTarget(null)} />
       ) : (
         <div class="diff-empty gx-muted">Select a file to see its diff</div>
       )}
-      <NotesPanel context={context} projectPath={projectPath} notes={notes} onOpenNote={openNote} />
       {dialog}
+      <NotesPanel context={context} projectPath={projectPath} notes={notes} onOpenNote={openNote} />
     </div>
   );
 }

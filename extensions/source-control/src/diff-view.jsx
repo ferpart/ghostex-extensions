@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { readBlob, readWorktreeFile } from './git.js';
 import { attachLineNotes } from './shared/line-notes.js';
 import { createDiffEditor, disposeEditor } from './shared/monaco-setup.js';
+import { SendNotesButton } from './shared/notes-panel.jsx';
 import { IconButton } from './ui.jsx';
 
 const readSide = (cwd, side) => (side.rev === 'worktree' ? readWorktreeFile(cwd, side.path) : readBlob(cwd, side.rev, side.path));
 
-export function DiffView({ cwd, target, version, notes, addNote, removeNote, onClose }) {
+export function DiffView({ context, projectPath, cwd, target, version, notes, addNote, removeNote, onClose }) {
   const host = useRef(null);
   const editor = useRef(null);
   const lineNotes = useRef(null);
@@ -62,6 +63,7 @@ export function DiffView({ cwd, target, version, notes, addNote, removeNote, onC
         <IconButton icon="arrow-left" title="Close the diff" onClick={onClose} />
         <span class="diff-path" title={path}>{path}</span>
         <span class="gx-muted diff-label">{target.label}</span>
+        <SendNotesButton context={context} projectPath={projectPath} notes={diffNotes()} />
         <span
           class="expand-hint"
           title="Press Cmd+Ctrl+E in Ghostex to expand this view over the Agents Panel. The diff then opens next to the file lists."
