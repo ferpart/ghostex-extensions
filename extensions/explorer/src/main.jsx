@@ -258,6 +258,7 @@ function App() {
             />
           </main>
         )}
+        {!openFile && <main class="file-pane empty-pane gx-muted">Open a file from the list.</main>}
       </div>
       <NotesPanel context={context} projectPath={cwd} notes={notes} onOpenNote={(note) => requestOpen({ path: note.filePath, line: note.startLine, mode: note.source === 'diff' ? 'changes' : undefined })} />
     </div>

@@ -3,9 +3,14 @@
 .panes { flex: 1; display: flex; min-height: 0; }
 .sidebar { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .file-pane { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-.has-file .sidebar { display: none; }
-@media (min-width: 760px) {
-  .has-file .sidebar { display: flex; flex: 0 0 320px; border-right: 1px solid var(--gx-border); }
+.has-file .sidebar, .empty-pane { display: none; }
+.empty-pane { align-items: center; justify-content: center; }
+.expand-hint { color: var(--gx-fg-muted); font-size: 11px; opacity: 0.7; cursor: help; white-space: nowrap; }
+@media (max-width: 359px) { .expand-hint { display: none; } }
+@media (min-width: 900px) {
+  .sidebar, .has-file .sidebar { display: flex; order: 2; flex: 0 0 300px; border-left: 1px solid var(--gx-border); }
+  .empty-pane { display: flex; }
+  .expand-hint { display: none; }
 }
 
 .explorer-header { position: relative; display: flex; align-items: center; gap: 2px; padding: 8px 8px 4px 12px; }

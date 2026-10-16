@@ -172,6 +172,7 @@ export function FileView({
       <header class="file-header">
         <button class="icon-button" title="Back to files" onClick={onClose}><Icon name="arrow-left" /></button>
         <span class="file-path" title={path}>{path}</span>
+        <span class="expand-hint" title="Press Cmd+Ctrl+E to expand this panel over the Agents Panel">Expand ⌘⌃E</span>
         {dirty && <span class="dirty-mark" title="Unsaved changes">●</span>}
         <span class="save-state gx-muted">
           {saveState.status === 'saving' ? 'Saving…' : saveState.status === 'saved' && !dirty ? 'Saved' : ''}
