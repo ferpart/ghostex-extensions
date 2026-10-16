@@ -150,6 +150,13 @@ function NoPullRequest({ cwd, context, busy, ask, act }) {
   );
 }
 
+function showBadge(bridge, lines) {
+  if (!bridge) return;
+  Promise.resolve()
+    .then(() => bridge.ui.setBadge(lines))
+    .catch((error) => console.warn('setBadge failed', error));
+}
+
 function App() {
   const { bridge, context, error: bridgeError } = useGhostexContext();
   const cwd = projectPathOf(context);
@@ -216,13 +223,22 @@ function App() {
     return () => clearInterval(timer);
   }, [hasPending, refresh]);
 
+  const sessionId = context?.activeSession?.sessionId;
   useEffect(() => {
-    if (!bridge || pr === undefined) return;
-    const lines = pr && details ? badgeLines(summarizeChecks(details.checks)) : [];
-    Promise.resolve()
-      .then(() => bridge.ui.setBadge(lines))
-      .catch((error) => console.warn('setBadge failed', error));
-  }, [bridge, pr, details]);
+    showBadge(bridge, []);
+    refresh();
+  }, [bridge, cwd, sessionId]);
+
+  useEffect(() => {
+    showBadge(bridge, pr && details && !loadError ? badgeLines(pr, summarizeChecks(details.checks)) : []);
+  }, [bridge, pr, details, loadError]);
+
+  useEffect(() => {
+    if (!bridge) return;
+    const clear = () => showBadge(bridge, []);
+    window.addEventListener('pagehide', clear);
+    return () => window.removeEventListener('pagehide', clear);
+  }, [bridge]);
 
   useEffect(() => {
     bridge?.storage

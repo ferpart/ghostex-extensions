@@ -102,12 +102,12 @@ export function summaryText(summary) {
   return parts.join(', ');
 }
 
-export function badgeLines(summary) {
-  if (summary.total === 0) return [];
-  const parts = [];
+export function badgeLines(pr, summary) {
+  if (!pr) return [];
+  const parts = [`#${pr.number}`];
   if (summary.failing) parts.push(`✗${summary.failing}`);
   if (summary.pending) parts.push(`●${summary.pending}`);
-  if (parts.length === 0) parts.push(`✓${summary.passing}`);
+  if (parts.length === 1 && summary.passing) parts.push(`✓${summary.passing}`);
   return [parts.join(' ')];
 }
 
