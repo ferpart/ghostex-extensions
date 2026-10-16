@@ -1,9 +1,98 @@
-#root { height: 100%; display: flex; flex-direction: column; }
-.file-list { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-.file-list ul { list-style: none; margin: 0; padding: 0 4px; overflow: auto; }
-.filter { margin: 8px; padding: 6px 8px; border: 1px solid var(--gx-border); border-radius: 6px; background: var(--gx-bg-raised); color: var(--gx-fg); }
-.file-row { width: 100%; text-align: left; background: none; border: 0; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-family: var(--gx-mono); font-size: 12px; }
-.file-row:hover { background: var(--gx-bg-hover); }
+#root { height: 100%; }
+.app { height: 100%; display: flex; flex-direction: column; }
+.panes { flex: 1; display: flex; min-height: 0; }
+.sidebar { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.file-pane { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.has-file .sidebar { display: none; }
+@media (min-width: 760px) {
+  .has-file .sidebar { display: flex; flex: 0 0 320px; border-right: 1px solid var(--gx-border); }
+}
+
+.explorer-header { position: relative; display: flex; align-items: center; gap: 2px; padding: 8px 8px 4px 12px; }
+.project-name { flex: 1; font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.icon-button { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: 1px solid transparent; border-radius: 6px; background: none; color: var(--gx-fg-muted); cursor: pointer; padding: 0; flex: none; }
+.icon-button:hover { background: var(--gx-bg-hover); color: var(--gx-fg); }
+.icon-button.on { border-color: var(--gx-accent); color: var(--gx-fg); background: rgb(59 130 246 / 0.15); }
+.spinning .codicon { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.menu-backdrop { position: fixed; inset: 0; z-index: 20; }
+.menu { position: absolute; top: 34px; right: 8px; z-index: 21; min-width: 220px; padding: 4px; border: 1px solid var(--gx-border); border-radius: 8px; background: var(--gx-bg-raised); box-shadow: 0 8px 24px rgb(0 0 0 / 0.35); }
+.menu button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 8px; border: 0; border-radius: 4px; background: none; text-align: left; cursor: pointer; }
+.menu button:hover { background: var(--gx-bg-hover); }
+.menu-target { padding: 4px 8px 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-bottom: 1px solid var(--gx-border); margin-bottom: 4px; }
+
+.search { padding: 4px 8px 8px; border-bottom: 1px solid var(--gx-border); display: flex; flex-direction: column; gap: 6px; }
+.search-input { display: flex; align-items: center; gap: 4px; padding: 0 4px 0 8px; border: 1px solid var(--gx-border); border-radius: 6px; background: var(--gx-bg-raised); color: var(--gx-fg-muted); }
+.search-input:focus-within { border-color: var(--gx-accent); }
+.search-input input { flex: 1; min-width: 0; padding: 6px 4px; border: 0; outline: none; background: none; color: var(--gx-fg); font: inherit; }
+.segmented { display: flex; padding: 2px; border-radius: 6px; background: var(--gx-bg-raised); }
+.segmented button { flex: 1; padding: 3px 0; border: 0; border-radius: 4px; background: none; color: var(--gx-fg-muted); cursor: pointer; }
+.segmented button.on { background: var(--gx-bg); color: var(--gx-fg); }
+
+.scroll { flex: 1; min-height: 0; overflow: auto; padding: 4px 0; }
+.placeholder { padding: 12px; }
+.result-summary { padding: 2px 12px 4px; }
+.rows, .rows ul { list-style: none; margin: 0; padding: 0; }
+.row { display: flex; align-items: center; gap: 4px; width: 100%; min-height: 24px; padding: 0 8px 0 6px; border: 0; background: none; text-align: left; cursor: pointer; white-space: nowrap; }
+.row:hover { background: var(--gx-bg-hover); }
+.row.active { background: rgb(59 130 246 / 0.18); }
+.row .codicon { flex: none; color: var(--gx-fg-muted); }
+.row .name { overflow: hidden; text-overflow: ellipsis; }
+.row .dir { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; direction: rtl; text-align: left; margin-left: 4px; }
+.row .gx-count { margin-left: auto; font-size: 11px; color: var(--gx-fg-muted); }
+.twisty { display: inline-flex; width: 16px; flex: none; }
+.status-letter, .status-dot { margin-left: auto; padding-left: 8px; font-size: 11px; font-weight: 600; }
+.status-dot { font-size: 8px; }
+.st-modified { color: var(--gx-yellow); }
+.st-added, .st-untracked, .st-renamed { color: var(--gx-green); }
+.st-deleted, .st-conflict { color: var(--gx-red); }
+.st-deleted:not(:has(.status-dot)) .name { text-decoration: line-through; }
+.result-file > .row { font-weight: 600; }
+.row.match { padding-left: 26px; font-family: var(--gx-mono); font-size: 12px; }
+.line-number { flex: none; min-width: 32px; text-align: right; padding-right: 8px; }
+.preview { overflow: hidden; text-overflow: ellipsis; white-space: pre; }
+.preview mark { background: rgb(210 153 34 / 0.35); color: inherit; border-radius: 2px; }
+
 .file-view { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-.file-path { font-family: var(--gx-mono); text-transform: none; letter-spacing: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-header { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-bottom: 1px solid var(--gx-border); }
+.file-path { flex: 1; min-width: 0; font-family: var(--gx-mono); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left; }
+.dirty-mark { color: var(--gx-accent); font-size: 12px; }
 .editor-host { flex: 1; min-height: 0; }
+.confirm-bar { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-bottom: 1px solid var(--gx-yellow); background: rgb(210 153 34 / 0.12); }
+.confirm-bar span { flex: 1; }
+.gx-button.danger { border-color: var(--gx-red); color: var(--gx-red); }
+
+/* codicon.css has no glyph rules, so this file defines the glyphs that the UI uses. */
+.codicon-file::before { content: "\ea7b"; }
+.codicon-file-code::before { content: "\eae9"; }
+.codicon-file-media::before { content: "\eaea"; }
+.codicon-file-zip::before { content: "\eaef"; }
+.codicon-file-pdf::before { content: "\eaeb"; }
+.codicon-file-binary::before { content: "\eae8"; }
+.codicon-file-text::before { content: "\ec5e"; }
+.codicon-json::before { content: "\eb0f"; }
+.codicon-markdown::before { content: "\eb1d"; }
+.codicon-gear::before { content: "\eaf8"; }
+.codicon-terminal::before { content: "\ea85"; }
+.codicon-lock::before { content: "\ea75"; }
+.codicon-book::before { content: "\eaa4"; }
+.codicon-database::before { content: "\eace"; }
+.codicon-folder::before { content: "\ea83"; }
+.codicon-folder-opened::before { content: "\eaf7"; }
+.codicon-chevron-right::before { content: "\eab6"; }
+.codicon-chevron-down::before { content: "\eab4"; }
+.codicon-collapse-all::before { content: "\eac5"; }
+.codicon-refresh::before { content: "\eb37"; }
+.codicon-ellipsis::before { content: "\ea7c"; }
+.codicon-search::before { content: "\ea6d"; }
+.codicon-case-sensitive::before { content: "\eab1"; }
+.codicon-whole-word::before { content: "\eb7e"; }
+.codicon-regex::before { content: "\eb38"; }
+.codicon-arrow-left::before { content: "\ea9b"; }
+.codicon-link-external::before { content: "\eb14"; }
+.codicon-copy::before { content: "\ebcc"; }
+.codicon-go-to-file::before { content: "\ea94"; }
+.codicon-save::before { content: "\eb4b"; }
+.codicon-filter::before { content: "\eaf1"; }
+.codicon-close::before { content: "\ea76"; }
