@@ -50,7 +50,7 @@ button { font: inherit; color: inherit; }
 .gx-notes-actions { display: flex; gap: 6px; padding: 6px 10px 2px; }
 .gx-notes > .gx-muted { padding: 0 10px; }
 
-.gx-note-card { margin: 4px 12px 4px 0; padding: 8px 10px; border: 1px solid var(--gx-border); border-radius: 8px; background: var(--gx-bg-raised); font-family: var(--gx-font); box-shadow: 0 4px 12px rgb(0 0 0 / 0.25); }
+.gx-note-card { max-width: min(640px, var(--gx-note-card-visible-width, 640px)); margin: 4px 12px 4px 0; padding: 8px 10px; border: 1px solid var(--gx-border); border-radius: 8px; background: var(--gx-bg-raised); font-family: var(--gx-font); box-shadow: 0 4px 12px rgb(0 0 0 / 0.25); }
 .gx-note-draft { display: flex; flex-direction: column; gap: 6px; height: calc(100% - 8px); }
 .gx-note-label { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: var(--gx-fg-muted); }
 .gx-note-input { flex: 1; resize: none; border: 1px solid var(--gx-accent); border-radius: 6px; background: var(--gx-bg); color: var(--gx-fg); padding: 6px 8px; font: 13px var(--gx-font); outline: none; }

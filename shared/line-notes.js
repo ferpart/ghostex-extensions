@@ -3,6 +3,7 @@ import { monaco } from './monaco-setup.js';
 const DRAFT_HEIGHT_PX = 150;
 const NOTE_LINE_PX = 18;
 const NOTE_CHROME_PX = 34;
+const CARD_RIGHT_GAP_PX = 24;
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -17,6 +18,13 @@ function isolateFromEditor(node) {
   }
   node.style.pointerEvents = 'auto';
   node.style.zIndex = '10';
+}
+
+// Monaco sets inline display on a zone's domNode, so the card sits inside a plain wrapper.
+function zoneNodeFor(card) {
+  const zone = element('div', 'gx-note-zone');
+  zone.append(card);
+  return zone;
 }
 
 function rangeLabel(startLine, endLine) {
@@ -43,6 +51,15 @@ export function attachLineNotes(editor, { onAdd, onRemove }) {
   let draftZoneId = null;
   let noteZoneIds = [];
   const hoverDecorations = editor.createDecorationsCollection();
+  const domNode = editor.getDomNode();
+
+  const fitCardsToVisibleWidth = () => {
+    const { width, contentLeft, verticalScrollbarWidth } = editor.getLayoutInfo();
+    const visibleWidth = Math.max(0, width - contentLeft - verticalScrollbarWidth - CARD_RIGHT_GAP_PX);
+    domNode.style.setProperty('--gx-note-card-visible-width', `${visibleWidth}px`);
+  };
+  fitCardsToVisibleWidth();
+  const layoutChange = editor.onDidLayoutChange(fitCardsToVisibleWidth);
   const noteDecorations = editor.createDecorationsCollection();
 
   const closeDraft = () => {
@@ -87,7 +104,7 @@ export function attachLineNotes(editor, { onAdd, onRemove }) {
     });
 
     editor.changeViewZones((accessor) => {
-      draftZoneId = accessor.addZone({ afterLineNumber: endLine, heightInPx: DRAFT_HEIGHT_PX, domNode: card });
+      draftZoneId = accessor.addZone({ afterLineNumber: endLine, heightInPx: DRAFT_HEIGHT_PX, domNode: zoneNodeFor(card) });
     });
     editor.revealLineInCenterIfOutsideViewport(endLine);
     requestAnimationFrame(() => textarea.focus());
@@ -112,7 +129,7 @@ export function attachLineNotes(editor, { onAdd, onRemove }) {
         return accessor.addZone({
           afterLineNumber: note.endLine,
           heightInPx: NOTE_CHROME_PX + NOTE_LINE_PX * lineCount,
-          domNode: card,
+          domNode: zoneNodeFor(card),
         });
       });
     });
@@ -154,7 +171,7 @@ export function attachLineNotes(editor, { onAdd, onRemove }) {
       closeDraft();
       notes = [];
       renderNotes();
-      for (const disposable of [mouseMove, mouseLeave, mouseDown, action]) disposable.dispose();
+      for (const disposable of [layoutChange, mouseMove, mouseLeave, mouseDown, action]) disposable.dispose();
       hoverDecorations.clear();
     },
   };
