@@ -11,6 +11,7 @@ Stage, commit, push, and review branch changes and history, with line notes for 
 - Committed on branch: files changed since the merge base with the base branch.
 - Commits: history with a commit graph, branch and tag labels, the files of each commit, and "Load more commits".
 - Diff view: click a file to open an inline Monaco diff. Add line notes in the gutter and send them to the active agent.
+- Wide layout: at 900 px or more, the lists stay in a 300 px column on the right and the diff opens on the left. In Ghostex, press ⌘⌃E to expand the view over the Agents Panel.
 
 Push, pull, publish, amend, and discard ask for confirmation first. Pull and sync use `git pull --ff-only`.
 

@@ -59,9 +59,15 @@ export function DiffView({ cwd, target, version, notes, addNote, removeNote, onC
   return (
     <div class="diff-view">
       <header class="diff-header">
-        <IconButton icon="arrow-left" title="Back to the file lists" onClick={onClose} />
+        <IconButton icon="arrow-left" title="Close the diff" onClick={onClose} />
         <span class="diff-path" title={path}>{path}</span>
         <span class="gx-muted diff-label">{target.label}</span>
+        <span
+          class="expand-hint"
+          title="Press Cmd+Ctrl+E in Ghostex to expand this view over the Agents Panel. The diff then opens next to the file lists."
+        >
+          Expand ⌘⌃E
+        </span>
       </header>
       {error && <div class="gx-error">{error.message}</div>}
       {loading && !error && <div class="gx-muted section-note">Loading diff…</div>}
