@@ -1,6 +1,6 @@
 import { render } from 'preact';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import { projectPathOf, run, shellQuote, toast, useGhostexContext, waitForBridge } from './shared/bridge.js';
+import { execPosix, projectPathOf, run, shellQuote, toast, useGhostexContext, waitForBridge } from './shared/bridge.js';
 import { useNotes } from './shared/notes.js';
 import { NotesPanel } from './shared/notes-panel.jsx';
 import { FileView } from './file-view.jsx';
@@ -33,8 +33,7 @@ async function loadListing(cwd) {
 }
 
 async function searchContents(cwd, query, options) {
-  const bridge = await waitForBridge();
-  const result = await bridge.exec(rgCommand(query, options), { cwd });
+  const result = await execPosix(rgCommand(query, options), { cwd });
   const parsed = parseRgJson(result.stdout);
   if (result.stdout.length >= MAX_RG_OUTPUT_BYTES) parsed.truncated = true;
   if (parsed.totalMatches === 0 && (parsed.exitCode ?? 2) > 1) {
