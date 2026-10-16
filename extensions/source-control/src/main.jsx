@@ -4,6 +4,7 @@ import { projectPathOf, toast, useGhostexContext } from './shared/bridge.js';
 import { enableCodicons } from './shared/codicons.js';
 import { useNotes } from './shared/notes.js';
 import { NotesPanel } from './shared/notes-panel.jsx';
+import { BasePicker } from './base-picker.jsx';
 import { CommitsSection } from './commits.jsx';
 import { DiffView } from './diff-view.jsx';
 import { sumLines } from './git-parse.js';
@@ -14,8 +15,9 @@ import './styles.css';
 
 const HISTORY_PAGE = 50;
 
-function BranchHeader({ cwd, status, target, sync, pr, branchLines, busy, onRefresh }) {
-  const branch = status.branch.head;
+function BranchHeader({ cwd, status, base, defaultBase, isCustomBase, onPickBase, pr, branchLines, busy, onRefresh }) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const { head: branch, upstream, ahead, behind } = status.branch;
   const openInBrowser = () =>
     (pr ? git.openPullRequest(cwd) : git.openBranch(cwd, branch)).catch((error) => toast(error.message));
   return (
@@ -33,15 +35,42 @@ function BranchHeader({ cwd, status, target, sync, pr, branchLines, busy, onRefr
       </div>
       <div class="branch-line">
         <span class="branch-name">{branch ?? `detached at ${status.branch.oid?.slice(0, 7) ?? 'nothing'}`}</span>
-        {branchLines && <LineCounts {...branchLines} />}
+        {branchLines && (
+          <span title={`Lines changed since the merge base with ${base}`}>
+            <LineCounts {...branchLines} />
+          </span>
+        )}
+      </div>
+      <div class="branch-line base-line">
+        <span class="gx-muted" aria-hidden="true">→</span>
+        <button class="base-button" title="Change the base branch for 'Committed on branch'" onClick={() => setPickerOpen(true)}>
+          {base ?? 'choose a base branch'}
+          <Icon name="chevron-down" />
+        </button>
+        {isCustomBase && <span class="gx-muted">custom base</span>}
+        {pickerOpen && (
+          <BasePicker
+            cwd={cwd}
+            base={base}
+            defaultBase={defaultBase}
+            isCustom={isCustomBase}
+            onClose={() => setPickerOpen(false)}
+            onPick={(ref) => {
+              setPickerOpen(false);
+              onPickBase(ref);
+            }}
+          />
+        )}
       </div>
       <div class="branch-line">
-        <span class="branch-target" title={status.branch.upstream ? 'Upstream branch' : 'Base branch (no upstream yet)'}>
-          <Icon name="arrow-right" /> {target ?? 'no upstream or base'}
+        <span class="upstream" title={upstream ? 'Upstream branch for push and pull' : 'The branch has no upstream. Use Publish branch.'}>
+          <Icon name="cloud" /> {upstream ?? 'not published'}
         </span>
-        <span class="sync-counts" title={`${sync.ahead} to push, ${sync.behind} to pull`}>
-          <Icon name="arrow-up" />{sync.ahead} <Icon name="arrow-down" />{sync.behind}
-        </span>
+        {upstream && (
+          <span class="sync-counts" title={`${ahead} commit(s) to push to ${upstream}, ${behind} to pull`}>
+            <Icon name="arrow-up" />{ahead} <Icon name="arrow-down" />{behind}
+          </span>
+        )}
         <IconButton
           icon="link-external"
           title={pr ? 'Open the pull request in the browser' : 'Open the branch in the browser'}
@@ -200,7 +229,8 @@ function App() {
   const [status, setStatus] = useState(null);
   const [base, setBase] = useState(null);
   const [branchChanges, setBranchChanges] = useState(null);
-  const [baseSync, setBaseSync] = useState(null);
+  const [defaultBase, setDefaultBase] = useState(null);
+  const [savedBase, setSavedBase] = useState(undefined);
   const [pr, setPr] = useState(undefined);
   const [history, setHistory] = useState(null);
   const [historyLimit, setHistoryLimit] = useState(HISTORY_PAGE);
@@ -218,34 +248,46 @@ function App() {
     setStatus(null);
     setDiffTarget(null);
     setLoadError(null);
+    setSavedBase(undefined);
+    git.loadSavedBase(projectPath).then(setSavedBase).catch(() => setSavedBase(null));
     git.repoRoot(projectPath).then(setCwd).catch(() => setLoadError(new Error(`${projectPath} is not a git repository.`)));
   }, [projectPath]);
 
   const refresh = useCallback(async () => {
-    if (!cwd) return;
+    if (!cwd || savedBase === undefined) return;
     const sequence = ++refreshSequence.current;
     const current = () => sequence === refreshSequence.current;
     try {
-      const [nextStatus, nextBase] = await Promise.all([git.loadStatus(cwd), git.resolveBaseBranch(cwd)]);
+      const [nextStatus, nextDefaultBase, savedBaseExists] = await Promise.all([
+        git.loadStatus(cwd),
+        git.resolveBaseBranch(cwd),
+        savedBase ? git.refExists(cwd, savedBase) : false,
+      ]);
       if (!current()) return;
+      if (savedBase && !savedBaseExists) {
+        toast(`The base branch ${savedBase} no longer exists. Using ${nextDefaultBase ?? 'no base'} instead.`);
+        await git.saveBase(projectPath, null);
+        setSavedBase(null);
+        return;
+      }
+      const nextBase = savedBase || nextDefaultBase;
       setStatus(nextStatus);
+      setDefaultBase(nextDefaultBase);
       setBase(nextBase);
       setLoadError(null);
       setVersion((value) => value + 1);
       const hasHead = Boolean(nextStatus.branch.oid);
-      const [changes, nextHistory, nextBaseSync] = await Promise.all([
+      const [changes, nextHistory] = await Promise.all([
         hasHead ? git.loadBranchChanges(cwd, nextBase) : { mergeBase: null, entries: [] },
         hasHead ? git.loadHistory(cwd, { limit: historyLimit, branch: nextStatus.branch.head, base: nextBase }) : { rows: [], hasMore: false },
-        hasHead && !nextStatus.branch.upstream && nextBase ? git.aheadBehind(cwd, nextBase) : null,
       ]);
       if (!current()) return;
       setBranchChanges(changes);
       setHistory(nextHistory);
-      setBaseSync(nextBaseSync);
     } catch (error) {
       if (current()) setLoadError(error);
     }
-  }, [cwd, historyLimit]);
+  }, [cwd, historyLimit, savedBase, projectPath]);
 
   useEffect(() => {
     if (!cwd) return;
@@ -296,14 +338,29 @@ function App() {
     if (await ask(`${what} You cannot undo this.`, 'Discard')) runAction('Discarding', () => git.discard(cwd, entry));
   };
 
-  const sync = status.branch.upstream ? status.branch : (baseSync ?? { ahead: 0, behind: 0 });
-  const target = status.branch.upstream ?? base;
+  const pickBase = async (ref) => {
+    try {
+      await git.saveBase(projectPath, ref);
+    } catch (error) {
+      toast(`The base branch was not saved: ${error.message}`);
+    }
+    if (diffTarget?.key.startsWith('branch:')) setDiffTarget(null);
+    setBranchChanges(null);
+    setSavedBase(ref);
+  };
   const branchLines = branchChanges && sumLines(branchChanges.entries);
 
   return (
     <div class={`app${diffTarget ? ' has-diff' : ''}`}>
       <div class="sidebar">
-        <BranchHeader cwd={cwd} status={status} target={target} sync={sync} pr={pr} branchLines={branchLines} busy={busy} onRefresh={() => runAction('Refreshing', async () => {})} />
+        <BranchHeader
+          cwd={cwd}
+          status={status}
+          base={base}
+          defaultBase={defaultBase}
+          isCustomBase={Boolean(savedBase) && base === savedBase}
+          onPickBase={pickBase}
+          pr={pr} branchLines={branchLines} busy={busy} onRefresh={() => runAction('Refreshing', async () => {})} />
         <CommitBox cwd={cwd} status={status} busy={busy} runAction={runAction} ask={ask} />
         {busy && (
           <div class="busy">
@@ -361,8 +418,12 @@ function App() {
               ))}
             </ul>
           </Section>
-          <Section title="Committed on branch" count={branchChanges ? branchChanges.entries.length : '…'}>
-            {!base && <div class="gx-muted section-note">No base branch found (origin/HEAD, main or master).</div>}
+          <Section
+            title="Committed on branch"
+            count={branchChanges ? branchChanges.entries.length : '…'}
+            actions={base && <span class="gx-muted section-base" title={`Files changed since the merge base with ${base}`}>vs {base}</span>}
+          >
+            {!base && <div class="gx-muted section-note">No base branch found (origin/HEAD, main or master). Choose one in the header.</div>}
             {base && branchChanges?.entries.length === 0 && <div class="gx-muted section-note">No commits on this branch since {base}.</div>}
             <ul class="file-list">
               {branchChanges?.entries.map((entry) => (

@@ -34,6 +34,22 @@
 .pr-state { font-size: 11px; font-weight: 400; color: var(--gx-fg-muted); }
 .pr-merged { color: #a371f7; }
 .pr-closed { color: var(--gx-red); }
+.base-line { position: relative; }
+.base-button { display: inline-flex; align-items: center; gap: 2px; min-width: 0; max-width: 70%; padding: 0; border: 0; background: none; cursor: pointer; font-family: var(--gx-mono); font-size: 12px; text-decoration: underline; text-decoration-color: var(--gx-border); text-underline-offset: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.base-button:hover { text-decoration-color: var(--gx-fg); }
+.branch-line.base-line > :last-child, .branch-name:last-child { margin-left: 0; }
+.base-picker { position: absolute; top: 100%; left: 0; right: 0; z-index: 21; margin-top: 4px; padding: 6px; border: 1px solid var(--gx-border); border-radius: 6px; background: var(--gx-bg-raised); box-shadow: 0 6px 18px rgb(0 0 0 / 0.35); }
+.base-search { width: 100%; padding: 5px 8px; border: 1px solid var(--gx-border); border-radius: 4px; background: var(--gx-bg); color: var(--gx-fg); outline: none; }
+.base-search:focus { border-color: var(--gx-accent); }
+.base-list { list-style: none; margin: 6px 0 0; padding: 0; max-height: 280px; overflow: auto; }
+.base-option { display: flex; align-items: center; gap: 6px; width: 100%; padding: 4px 6px; border: 0; border-radius: 4px; background: none; text-align: left; cursor: pointer; }
+.base-option:hover:not(:disabled) { background: var(--gx-bg-hover); }
+.base-option:disabled { opacity: 0.45; cursor: default; }
+.base-option.current { color: var(--gx-accent); }
+.base-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--gx-mono); font-size: 12px; }
+.base-note { padding: 4px 6px; }
+.section-base { font-weight: 400; letter-spacing: 0; font-family: var(--gx-mono); text-transform: none; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.upstream { display: inline-flex; align-items: center; gap: 4px; min-width: 0; color: var(--gx-fg-muted); font-family: var(--gx-mono); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .branch-name, .branch-target { font-family: var(--gx-mono); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .branch-target { color: var(--gx-fg-muted); display: inline-flex; align-items: center; gap: 4px; }
 .sync-counts { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; color: var(--gx-fg-muted); font-size: 12px; }

@@ -1,6 +1,6 @@
 import { run, shellQuote, waitForBridge, writeFile } from './shared/bridge.js';
 import { agentArgs, buildCommitPrompt, cleanGeneratedMessage } from './commit-prompt.js';
-import { changeListArgs, parseChangeList, parseNumstat, parseStatus, withStats } from './git-parse.js';
+import { BRANCH_LIST_FORMAT, changeListArgs, parseBranchList, parseChangeList, parseNumstat, parseStatus, withStats } from './git-parse.js';
 import { buildColorMap, buildGraphRows, logCommand, parseLog } from './git-history.js';
 
 const MAX_FILE_BYTES = 2_000_000;
@@ -37,15 +37,30 @@ export async function resolveBaseBranch(cwd) {
 
 export async function loadBranchChanges(cwd, base) {
   if (!base) return { mergeBase: null, entries: [] };
-  const mergeBase = (await run(`git merge-base HEAD ${q(base)}`, { cwd, allowedExitCodes: [0, 1] })).trim();
+  const mergeBase = (await run(`git merge-base HEAD ${q(base)}`, { cwd, allowedExitCodes: [0, 1, 128] })).trim();
   if (!mergeBase) return { mergeBase: null, entries: [] };
   return { mergeBase, entries: parseChangeList(await run(changeListArgs(mergeBase, 'HEAD'), { cwd })) };
 }
 
-export async function aheadBehind(cwd, target) {
-  const out = await run(`git rev-list --left-right --count ${q(`HEAD...${target}`)}`, { cwd, allowedExitCodes: [0, 128] });
-  const [ahead, behind] = out.trim().split(/\s+/).map(Number);
-  return { ahead: ahead || 0, behind: behind || 0 };
+export async function listBranches(cwd) {
+  return parseBranchList(await run(`git for-each-ref '--format=${BRANCH_LIST_FORMAT}' refs/heads refs/remotes`, { cwd }));
+}
+
+export async function refExists(cwd, ref) {
+  const out = await run(`git rev-parse --verify --quiet ${q(`${ref}^{commit}`)}`, { cwd, allowedExitCodes: [0, 1] });
+  return Boolean(out.trim());
+}
+
+const savedBaseKey = (projectPath) => `baseRef:${projectPath}`;
+
+export async function loadSavedBase(projectPath) {
+  const bridge = await waitForBridge();
+  return (await bridge.storage.get(savedBaseKey(projectPath))) || null;
+}
+
+export async function saveBase(projectPath, ref) {
+  const bridge = await waitForBridge();
+  await bridge.storage.set(savedBaseKey(projectPath), ref ?? '');
 }
 
 export async function loadPullRequest(cwd) {
