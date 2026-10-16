@@ -6,8 +6,9 @@ Browse and search project files, open them in Monaco, and send line notes to the
 
 - File tree of the project: folders first, sorted by name, with git status colors on files and folders.
 - Find files by name (fuzzy match) or by content (`rg`, with match case, whole word, and regex options).
-- Monaco editor: edit a file and save it with Cmd+S. A dot shows unsaved changes.
-- Line notes: click the `+` in the gutter, write a note, and send or queue all notes to the active agent.
+- Edit mode: a Monaco editor. Save with Cmd+S. A dot shows unsaved changes.
+- Changes mode: a diff of the file against `HEAD`, with unsaved edits included. The diff is editable.
+- Line notes in Changes mode: click the `+` in the gutter, write a note, and send or queue all notes to the active agent.
 - Header menu: Reveal in Finder, Open in Ghostex Code, and Copy path.
 - The tree refreshes when the window gets focus and when the project changes.
 
