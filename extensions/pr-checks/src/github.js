@@ -1,4 +1,4 @@
-import { run, shellQuote, waitForBridge } from './shared/bridge.js';
+import { execPosix, run, shellQuote } from './shared/bridge.js';
 import { isBrokenCheck, mapRollupContexts, parseActionsRunId, PROMPT_LOG_TAIL_LINES } from './checks.js';
 import { mapPullRequestComments } from './comments.js';
 
@@ -79,8 +79,7 @@ export function repoOf(prUrl) {
 }
 
 export async function loadPullRequest(cwd) {
-  const bridge = await waitForBridge();
-  const result = await bridge.exec(ghCommand(['pr', 'view', '--json', PR_FIELDS]), { cwd });
+  const result = await execPosix(ghCommand(['pr', 'view', '--json', PR_FIELDS]), { cwd });
   if (result.exitCode === 0) return JSON.parse(result.stdout);
   const details = (result.stderr || result.stdout || '').trim();
   if (/no pull requests? found/i.test(details)) return null;
