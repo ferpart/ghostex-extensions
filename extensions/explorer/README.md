@@ -11,6 +11,7 @@ Browse and search project files, open them in Monaco, and send line notes to the
 - Line notes in Changes mode: click the `+` in the gutter, write a note, and send or queue all notes to the active agent.
 - Header menu: Reveal in Finder, Open in Ghostex Code, and Copy path.
 - The tree refreshes when the window gets focus and when the project changes.
+- At 900px and wider, the list is a 300px column on the right and the editor fills the left. Below 900px, the editor replaces the list, and the header shows the Cmd+Ctrl+E hint to expand the panel.
 
 ## Permissions
 
