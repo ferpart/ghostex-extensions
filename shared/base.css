@@ -42,12 +42,13 @@ button { font: inherit; color: inherit; }
 .gx-section-header > :last-child { margin-left: auto; }
 .gx-count { border: 1px solid var(--gx-border); border-radius: 10px; padding: 0 6px; }
 
-.gx-notes { border-top: 1px solid var(--gx-border); padding-bottom: 8px; }
+.gx-notes { flex: none; position: sticky; bottom: 0; z-index: 1; background: var(--gx-bg); border-top: 1px solid var(--gx-border); padding-bottom: 8px; }
 .gx-notes-list { list-style: none; margin: 0; padding: 0 10px; max-height: 30vh; overflow: auto; }
 .gx-note-row { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
 .gx-note-preview { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.gx-notes-actions { display: flex; gap: 6px; padding: 6px 10px 2px; }
-.gx-notes > .gx-muted { padding: 0 10px; }
+.gx-notes-actions { display: flex; align-items: center; gap: 8px; padding: 6px 10px 2px; }
+.gx-notes-actions > .gx-muted { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gx-send-notes { display: inline-flex; flex: none; gap: 4px; }
 
 .gx-note-card { max-width: min(640px, var(--gx-note-card-visible-width, 640px)); margin: 4px 12px 4px 0; padding: 8px 10px; border: 1px solid var(--gx-border); border-radius: 8px; background: var(--gx-bg-raised); font-family: var(--gx-font); box-shadow: 0 4px 12px rgb(0 0 0 / 0.25); }
 .gx-note-draft { display: flex; flex-direction: column; gap: 6px; height: calc(100% - 8px); }
