@@ -1,7 +1,7 @@
 import { render } from 'preact';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { projectPathOf, toast, useGhostexContext } from './shared/bridge.js';
-import { enableCodicons } from './codicons.js';
+import { enableCodicons } from './shared/codicons.js';
 import { useNotes } from './shared/notes.js';
 import { NotesPanel } from './shared/notes-panel.jsx';
 import { CommitsSection } from './commits.jsx';
