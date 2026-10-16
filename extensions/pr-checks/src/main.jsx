@@ -231,7 +231,7 @@ function App() {
   useEffect(() => {
     const onClick = (event) => {
       const link = event.target.closest?.('a[href]');
-      if (!link || !/^https?:/.test(link.href)) return;
+      if (!link) return;
       event.preventDefault();
       github.openExternal(cwdRef.current, link.href).catch((error) => toast(error.message));
     };
@@ -311,7 +311,7 @@ function App() {
         buildPRCommentsResolutionPrompt({ reviewNumber: pr.number, reviewTitle: pr.title, reviewUrl: pr.url, groups, worktreePath: cwd }),
         `${groups.length} comment group(s)`
       ),
-    onOpen: (url) => github.openExternal(cwd, url),
+    onOpen: (url) => github.openExternal(cwd, url).catch((error) => toast(error.message)),
   };
 
   const ask = (request) => setConfirmRequest(request);
@@ -345,7 +345,7 @@ function App() {
                 onLoadLog={loadLog}
                 onFix={fixChecks}
                 onRerun={() => act(null, async () => toast(`Started ${await github.rerunFailedChecks(cwd, pr, details.checks)} re-run(s)`))}
-                onOpen={(url) => github.openExternal(cwd, url)}
+                onOpen={(url) => github.openExternal(cwd, url).catch((error) => toast(error.message))}
               />
               <CommentsSection groups={groupComments(details.comments)} busy={busy} actions={commentActions} />
             </div>

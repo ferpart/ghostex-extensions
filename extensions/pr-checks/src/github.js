@@ -186,7 +186,8 @@ export function addPullRequestComment(cwd, subjectId, body) {
   );
 }
 
-export function openExternal(cwd, url) {
+export async function openExternal(cwd, url) {
+  if (!/^https?:\/\//i.test(url)) throw new Error(`Refused to open ${url}: only http and https links can open.`);
   return run(`open ${shellQuote(url)} 2>/dev/null || xdg-open ${shellQuote(url)}`, { cwd });
 }
 
