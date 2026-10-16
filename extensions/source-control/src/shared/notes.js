@@ -35,6 +35,11 @@ export async function removeNote(projectPath, id) {
   await saveNotes(projectPath, (await loadNotes(projectPath)).filter((note) => note.id !== id));
 }
 
+export async function removeNotes(projectPath, ids) {
+  const sent = new Set(ids);
+  await saveNotes(projectPath, (await loadNotes(projectPath)).filter((note) => !sent.has(note.id)));
+}
+
 export async function clearNotes(projectPath) {
   await saveNotes(projectPath, []);
 }

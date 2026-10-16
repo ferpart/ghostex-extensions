@@ -47,6 +47,18 @@ export function createFileEditor(element, { path, value, readOnly = false }) {
   return monaco.editor.create(element, { ...baseOptions(), model, readOnly });
 }
 
+// Inline mode shrinks the original editor to its gutter, so it has no room for content.
+function hideOriginalLineNumbersWhileInline(diffEditor) {
+  const original = diffEditor.getOriginalEditor();
+  const sync = () => {
+    const { width, contentLeft } = original.getLayoutInfo();
+    const lineNumbers = width > contentLeft ? 'on' : 'off';
+    if (original.getRawOptions().lineNumbers !== lineNumbers) original.updateOptions({ lineNumbers });
+  };
+  sync();
+  original.onDidLayoutChange(sync);
+}
+
 export function createDiffEditor(element, { path, original, modified }) {
   initialize();
   const language = languageFor(path);
@@ -54,9 +66,10 @@ export function createDiffEditor(element, { path, original, modified }) {
     ...baseOptions(),
     readOnly: true,
     originalEditable: false,
-    renderSideBySide: false,
+    renderSideBySide: true,
     useInlineViewWhenSpaceIsLimited: true,
   });
+  hideOriginalLineNumbersWhileInline(editor);
   editor.setModel({
     original: monaco.editor.createModel(original, language),
     modified: monaco.editor.createModel(modified, language),
