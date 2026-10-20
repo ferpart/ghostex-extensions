@@ -247,7 +247,6 @@ function App() {
               line={openFile.line}
               revealKey={openFile.revealKey}
               requestedMode={openFile.mode}
-              hasChanges={listing.gitStatus.files.has(openFile.path)}
               modeByPath={modeByPath}
               notes={notes}
               addNote={add}

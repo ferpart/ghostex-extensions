@@ -3,6 +3,7 @@ import { run, shellQuote, writeFile } from './shared/bridge.js';
 import { attachLineNotes } from './shared/line-notes.js';
 import { createDiffEditor, createFileEditor, disposeEditor, monaco } from './shared/monaco-setup.js';
 import { SendNotesButton } from './shared/notes-panel.jsx';
+import { headContentCommand, parseHeadContent } from './git-head.js';
 import { Icon } from './icons.jsx';
 
 const MAX_EDITOR_BYTES = 1_000_000;
@@ -25,8 +26,6 @@ function unavailableMessage(header) {
   return `This file is ${(size / 1_000_000).toFixed(1)} MB. The editor opens files up to ${MAX_EDITOR_BYTES / 1_000_000} MB.`;
 }
 
-const CHANGES_DISABLED_TITLE = 'This file has no uncommitted changes and no unsaved edits.';
-
 function createChangesEditor(host, path, fileModel) {
   const editor = createDiffEditor(host, { path, original: '', modified: '' });
   const placeholders = editor.getModel();
@@ -37,7 +36,7 @@ function createChangesEditor(host, path, fileModel) {
 }
 
 export function FileView({
-  context, cwd, path, line, revealKey, requestedMode, hasChanges, modeByPath,
+  context, cwd, path, line, revealKey, requestedMode, modeByPath,
   notes, addNote, removeNote, onClose, onDirtyChange, onSaved, editorRef,
 }) {
   const editHost = useRef(null);
@@ -52,7 +51,6 @@ export function FileView({
   const [saveState, setSaveState] = useState({ status: 'idle' });
   const [mode, setModeState] = useState('edit');
   const [diffState, setDiffState] = useState({ status: 'idle' });
-  const canShowChanges = hasChanges || dirty;
   const fileNotes = notes.filter((note) => note.filePath === path);
 
   const setMode = (next) => {
@@ -76,7 +74,7 @@ export function FileView({
     setSaveState({ status: 'idle' });
     setDiffState({ status: 'idle' });
     const wanted = requestedMode ?? modeByPath.get(path) ?? 'edit';
-    setModeState(wanted === 'changes' && hasChanges ? 'changes' : 'edit');
+    setModeState(wanted);
     run(loadFileCommand(path), { cwd })
       .then((output) => {
         if (!alive) return;
@@ -144,11 +142,12 @@ export function FileView({
     editorRef.current = changes.current.editor.getModifiedEditor();
     let alive = true;
     setDiffState({ status: 'loading' });
-    run(`git show ${shellQuote(`HEAD:./${path}`)}`, { cwd, allowedExitCodes: [0, 128] })
-      .then((head) => {
+    run(headContentCommand(path), { cwd })
+      .then((output) => {
         if (!alive || !changes.current) return;
-        changes.current.original.setValue(head);
-        setDiffState((previous) => ({ ...previous, status: 'ready' }));
+        const { inRepo, content } = parseHeadContent(output);
+        changes.current.original.setValue(content);
+        setDiffState((previous) => ({ ...previous, status: 'ready', inRepo }));
         revealPending();
       })
       .catch((error) => alive && setDiffState({ status: 'error', message: error.message }));
@@ -159,7 +158,7 @@ export function FileView({
 
   useEffect(() => {
     pendingLine.current = line;
-    if (requestedMode && requestedMode !== mode && (requestedMode === 'edit' || canShowChanges)) setMode(requestedMode);
+    if (requestedMode && requestedMode !== mode) setMode(requestedMode);
     else revealPending();
   }, [revealKey]);
 
@@ -185,8 +184,7 @@ export function FileView({
               role="tab"
               aria-selected={mode === 'changes'}
               class={mode === 'changes' ? 'on' : ''}
-              disabled={mode !== 'changes' && !canShowChanges}
-              title={canShowChanges ? 'Show uncommitted changes as a diff' : CHANGES_DISABLED_TITLE}
+              title="Show uncommitted changes as a diff"
               onClick={() => setMode('changes')}
             >
               Changes
@@ -202,7 +200,10 @@ export function FileView({
       {state.status === 'unavailable' && <div class="placeholder gx-muted">{state.message}</div>}
       {ready && mode === 'changes' && diffState.status === 'loading' && <div class="banner gx-muted">Loading changes…</div>}
       {ready && mode === 'changes' && diffState.status === 'error' && <div class="gx-error">{diffState.message}</div>}
-      {ready && mode === 'changes' && diffState.status === 'ready' && diffState.identical && (
+      {ready && mode === 'changes' && diffState.status === 'ready' && !diffState.inRepo && (
+        <div class="banner gx-muted">This file is not in a git repository, so the diff shows all of it as new.</div>
+      )}
+      {ready && mode === 'changes' && diffState.status === 'ready' && diffState.inRepo && diffState.identical && (
         <div class="banner gx-muted">No uncommitted changes.</div>
       )}
       <div class="editor-host" ref={editHost} hidden={mode !== 'edit'} />

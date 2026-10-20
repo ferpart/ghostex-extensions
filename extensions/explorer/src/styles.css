@@ -64,7 +64,6 @@
 .file-header > :not(.file-path) { flex: none; }
 .file-header .file-path { flex: 1 1 80px; }
 .mode-switch button { flex: none; padding: 2px 8px; }
-.mode-switch button:disabled { opacity: 0.45; cursor: default; }
 .banner { padding: 4px 12px; border-bottom: 1px solid var(--gx-border); background: var(--gx-bg-raised); }
 .editor-host[hidden] { display: none; }
 @media (max-width: 380px) { .save-state { display: none; } }
