@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
+import { posixCommand, shellQuote, writeFileCommands } from './posix.js';
+
+export { shellQuote };
 
 const BRIDGE_POLL_MS = 25;
 const BRIDGE_TIMEOUT_MS = 8000;
@@ -17,17 +20,17 @@ export function waitForBridge() {
   });
 }
 
-export function shellQuote(value) {
-  return `'${String(value).replaceAll("'", "'\\''")}'`;
-}
-
 export function projectPathOf(context) {
   return context?.project?.path || null;
 }
 
-export async function run(command, { cwd, allowedExitCodes = [0] } = {}) {
+export async function execPosix(command, { cwd, stream } = {}) {
   const bridge = await waitForBridge();
-  const result = await bridge.exec(command, { cwd });
+  return bridge.exec(posixCommand(command), { cwd, stream });
+}
+
+export async function run(command, { cwd, allowedExitCodes = [0] } = {}) {
+  const result = await execPosix(command, { cwd });
   if (!allowedExitCodes.includes(result.exitCode)) {
     const details = (result.stderr || result.stdout || 'no output').trim();
     throw new Error(`${command.split('\n')[0]} failed (exit ${result.exitCode}): ${details}`);
@@ -40,11 +43,7 @@ export async function runJson(command, options) {
 }
 
 export async function writeFile(path, content, { cwd } = {}) {
-  const bytes = new TextEncoder().encode(content);
-  let binary = '';
-  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-  const encoded = btoa(binary);
-  await run(`printf %s ${shellQuote(encoded)} | base64 -d > ${shellQuote(path)}`, { cwd });
+  for (const command of writeFileCommands(path, content)) await run(command, { cwd });
 }
 
 export async function toast(message) {
