@@ -1,12 +1,13 @@
 # Ghostex extensions
 
-Three [Ghostex](https://github.com/maddada/Ghostex) extensions that bring the Orca right sidebar to Ghostex:
+[Ghostex](https://github.com/maddada/Ghostex) extensions that bring the Orca right sidebar to Ghostex, and a worktree overview:
 
 | Extension | What it does |
 |---|---|
 | [Explorer](extensions/explorer) | Browse and search project files, open them in Monaco, and add line notes for the agent. |
 | [Source Control](extensions/source-control) | Stage, commit, push, and review branch changes and history, with line notes on diffs. |
 | [PR Checks](extensions/pr-checks) | Manage the branch pull request: checks, merge, comments. Send failing checks or review comments to the agent. |
+| [Worktrees](extensions/worktrees) | Show the PR state of every git worktree and mark the ones that are safe to delete. |
 
 Each extension sends its prompts to the agent session that is selected in the Ghostex sidebar.
 
