@@ -42,15 +42,15 @@ button { font: inherit; color: inherit; }
 .gx-section-header > :last-child { margin-left: auto; }
 .gx-count { border: 1px solid var(--gx-border); border-radius: 10px; padding: 0 6px; }
 
-.gx-notes { border-top: 1px solid var(--gx-border); padding-bottom: 8px; }
+.gx-notes { flex: none; position: sticky; bottom: 0; z-index: 1; background: var(--gx-bg); border-top: 1px solid var(--gx-border); padding-bottom: 8px; }
 .gx-notes-list { list-style: none; margin: 0; padding: 0 10px; max-height: 30vh; overflow: auto; }
 .gx-note-row { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
-.gx-note-row.sent { opacity: 0.55; }
 .gx-note-preview { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.gx-notes-actions { display: flex; gap: 6px; padding: 6px 10px 2px; }
-.gx-notes > .gx-muted { padding: 0 10px; }
+.gx-notes-actions { display: flex; align-items: center; gap: 8px; padding: 6px 10px 2px; }
+.gx-notes-actions > .gx-muted { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gx-send-notes { display: inline-flex; flex: none; gap: 4px; }
 
-.gx-note-card { margin: 4px 12px 4px 0; padding: 8px 10px; border: 1px solid var(--gx-border); border-radius: 8px; background: var(--gx-bg-raised); font-family: var(--gx-font); box-shadow: 0 4px 12px rgb(0 0 0 / 0.25); }
+.gx-note-card { max-width: min(640px, var(--gx-note-card-visible-width, 640px)); margin: 4px 12px 4px 0; padding: 8px 10px; border: 1px solid var(--gx-border); border-radius: 8px; background: var(--gx-bg-raised); font-family: var(--gx-font); box-shadow: 0 4px 12px rgb(0 0 0 / 0.25); }
 .gx-note-draft { display: flex; flex-direction: column; gap: 6px; height: calc(100% - 8px); }
 .gx-note-label { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: var(--gx-fg-muted); }
 .gx-note-input { flex: 1; resize: none; border: 1px solid var(--gx-accent); border-radius: 6px; background: var(--gx-bg); color: var(--gx-fg); padding: 6px 8px; font: 13px var(--gx-font); outline: none; }
@@ -58,6 +58,7 @@ button { font: inherit; color: inherit; }
 .gx-note-header { display: flex; align-items: center; justify-content: space-between; }
 .gx-note-body { white-space: pre-wrap; line-height: 18px; font-size: 13px; }
 .gx-note-remove { padding: 0 6px; }
+.gx-note-range { background: rgb(59 130 246 / 0.22); }
 .gx-note-line { background: rgb(59 130 246 / 0.12); }
 .gx-note-glyph::before, .gx-note-add::before { content: '+'; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 4px; font: 600 13px var(--gx-font); }
 .gx-note-glyph::before { content: '●'; color: var(--gx-accent); font-size: 9px; }
