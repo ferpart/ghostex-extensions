@@ -17,8 +17,8 @@ export function revealInFinder(path) {
   return run(`open -R ${shellQuote(path)}`);
 }
 
-export async function switchProject(path) {
+export async function switchProject(projectId) {
   const bridge = await waitForBridge();
-  const result = await bridge.cli('switch-project', ['--path', path]);
+  const result = await bridge.cli('switch-project', ['--project-id', projectId]);
   if (result.exitCode !== 0) throw new Error((result.stderr || result.stdout || 'switch-project failed').trim());
 }

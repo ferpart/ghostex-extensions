@@ -29,7 +29,7 @@ function WorktreeRow({ worktree }) {
   const folder = worktree.path.split('/').at(-1);
   const reasons = blockers(worktree);
   const menuItems = [
-    worktree.project && worktree.exists && { label: 'Open project', onSelect: report(() => switchProject(worktree.path)) },
+    worktree.project?.projectId && worktree.exists && { label: 'Open project', onSelect: report(() => switchProject(worktree.project.projectId)) },
     { label: 'Copy path', onSelect: report(() => copyText(worktree.path).then(() => toast('Copied the path'))) },
     worktree.exists && { label: 'Reveal in Finder', onSelect: report(() => revealInFinder(worktree.path)) },
   ];

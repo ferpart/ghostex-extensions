@@ -25,7 +25,7 @@ The extension has no delete action. Delete a worktree with Delete Worktree on it
 ## Permissions
 
 - `exec`: runs `git` and `gh`, and `open` for links and Finder.
-- `cli`: runs `ghostex state` and `ghostex switch-project`.
+- `cli`: runs `ghostex state` and `ghostex switch-project --project-id`.
 
 ## Self-checks
 
