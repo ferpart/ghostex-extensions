@@ -10,6 +10,33 @@
     "Developer Tools",
     "Productivity"
   ],
+  "preferences": [
+    {
+      "name": "agent",
+      "title": "Commit message agent",
+      "description": "The agent CLI that writes the commit message from the staged diff.",
+      "type": "dropdown",
+      "default": "claude",
+      "data": [
+        {
+          "title": "Claude",
+          "value": "claude"
+        },
+        {
+          "title": "Codex",
+          "value": "codex"
+        }
+      ]
+    },
+    {
+      "name": "model",
+      "title": "Commit message model",
+      "description": "Optional model for the agent CLI, passed with --model. Leave empty to use the agent default.",
+      "type": "textfield",
+      "required": false,
+      "placeholder": "haiku"
+    }
+  ],
   "permissions": [
     "exec",
     "cli"
